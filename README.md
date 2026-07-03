@@ -45,7 +45,8 @@ We test five independent environmental Factors:
 ### Sampling Methodology
 The sampling of these parameters is conducted using Latin Hypercube Sampling (LHS) to efficiently cover the parameter space. After iteratively generating and evaluating different sample sizes, we finalized a matrix of 70 runs. This specific size guaranteed that our parameters were sufficiently uniform and orthogonal.
 
-![LHS Sampling Graphs](sampler_metrics/correlation_matrix.png)
+<img src="sampler_metrics/parameter_histograms.png" alt="Alt Text" width="900" height="300">
+<img src="sampler_metrics/correlation_matrix.png" alt="Alt Text" width="600" height="600">
 
 * **Concrete scenarios:** After sampling, we have 70 concrete scenarios.
 
@@ -85,4 +86,4 @@ The analysis is centered around four main categories of KPIs:
 
 I used the Interquartile Range (IQR) method (+- 1.5 * IQR) to define the operational limits for each metric, and to isolate all the outlier runs for further XAI analysis.
 
-[Insert table of outlier]
+table [here](analysis/outlier_runs_table.csv)
