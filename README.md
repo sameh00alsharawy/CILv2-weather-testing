@@ -3,7 +3,7 @@
 This repo was developed as a portfolio project to explore some subjects I am interested in, mainly Explainable AI (XAI), Vision-Action models, and the validation of autonomous vehicles. 
 
 ## Introduction and Objectives
-This analysis aims to evaluate the performance of the CLI++, an End-to-End Autonomous Driving Visual-Action model, to identify scenarios where a specific weather condition can lead to hazard.
+This analysis aims to evaluate the performance of the CILv2 [here](https://arxiv.org/pdf/2302.03198), an End-to-End Autonomous Driving Visual-Action model, to identify scenarios where a specific weather condition can lead to hazard.
 
 Because this testing is scenario-based and exploratory, it is inherently open-ended with no explicit operational design domain (ODD) requirements or strict pass/fail criteria provided by the original developers. I utilize traffic conflict techniques to evaluate the model's safety through surrogate safety measures, specifically focusing on path adherence and control stability under visual degradation.
 
@@ -32,7 +32,7 @@ Furthermore, due to the computationally intensive nature of rendering high-fidel
 
 ## Scenario Definition
 
-* **Functional scenario:** A car of the type [insert car, Lincoln…..] is driving in Town02 inside the CARLA simulation, taking route00, with no other dynamic actors on the road and with all stop lights set to green.
+* **Functional scenario:** A car of the type Lincoln MKZ 2017 is driving in Town02 inside the CARLA simulation, taking route00, with no other dynamic actors on the road and with all stop lights set to green.
 * **Logical Scenarios:** Detailed representation of functional scenarios with the help of state space variables. The input Factors are listed below, all drawn from a uniform distribution.
 
 We test five independent environmental Factors:
@@ -50,7 +50,22 @@ The sampling of these parameters is conducted using Latin Hypercube Sampling (LH
 * **Concrete scenarios:** After sampling, we have 70 concrete scenarios.
 
 ## Execution
-[describe How the code is structured!!]
+## Execution Architecture
+
+The simulation and testing pipeline is driven by a decoupled architecture, separating the environmental scenario management from the neural network inference. This is handled primarily by two core scripts:
+
+### 1. The Simulation Master (`orchestrator.py`)
+This script acts as the high-level environment and scenario manager. Its primary responsibilities include:
+* **Matrix Ingestion:** Reading the 70-run Latin Hypercube Sampling (LHS) test matrix.
+* **World Initialization:** Connecting to the CARLA server, spawning Town02, and instantiating the ego-vehicle (Lincoln MKZ 2017) at the designated route starting point.
+* **Environmental Control:** Dynamically applying the specific continuous weather parameters (Sun Altitude, Road Wetness, Cloudiness, etc.) for each specific run.
+* **Data Logging:** Recording the continuous telemetry outputs (Cross-Track Error, Acceleration, Lane Invasions) at a fixed simulation time-step to generate the final analytical datasets.
+
+### 2. The AI Driver (`unified_ai_control.py`)
+This script operates as the autonomous agent, completely blind to the "ground truth" of the simulator, relying solely on its sensor suite. Its responsibilities include:
+* **Sensor Fusion & Preprocessing:** Capturing the three front-facing RGB camera feeds (Left, Center, Right) and the current ego-speed, applying the necessary normalizations to match the CILv2 training distribution.
+* **Inference Engine:** Loading the frozen CILv2 PyTorch model weights and executing the forward pass. It takes the visual feature maps, fuses them with the navigational command token, and calculates the required control vector.
+* **Actuation:** Translating the network's continuous outputs back into discrete CARLA control commands (Steer, Throttle, Brake) and applying them to the vehicle chassis for the next simulation frame.
 
 ## Analysis
 
