@@ -238,10 +238,17 @@ My reasoning is that the ResNet is experiencing low feature confidence. Because 
 ## Further work
 
 ### more samples which would allow us to do [] []
-[] 
-[]
-[]
-[]
+
+#### 1
+#### 1
+#### 1
+#### 1
+
+#### 1
+#### 1
+#### 1
+#### 1
+#### 1
 placeholders
 
 
