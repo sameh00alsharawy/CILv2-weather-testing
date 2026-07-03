@@ -1,0 +1,57 @@
+--- SIGNIFICANT MARGINAL REGRESSIONS (p < 0.05, |r| > 0.2) ---
+
+Pairing: u_sun_alt -> Max_CTE
+  Pearson r : -0.5956 (p = 0.0000)
+  Equation  : Max_CTE = (-0.6335 * u_sun_alt) + 1.6326
+  Std Error : 0.1036
+
+Pairing: u_sun_alt -> Max_Jerk_Lat
+  Pearson r : -0.2424 (p = 0.0432)
+  Equation  : Max_Jerk_Lat = (-50.6546 * u_sun_alt) + 236.7925
+  Std Error : 24.5875
+
+Pairing: u_sun_alt -> Total_Evasions
+  Pearson r : -0.3735 (p = 0.0015)
+  Equation  : Total_Evasions = (-1.3928 * u_sun_alt) + 1.1100
+  Std Error : 0.4195
+
+Pairing: u_sun_alt -> LDR_Percent
+  Pearson r : -0.3792 (p = 0.0012)
+  Equation  : LDR_Percent = (-0.1160 * u_sun_alt) + 0.0917
+  Std Error : 0.0343
+
+Pairing: u_clouds -> Max_Jerk_Lat
+  Pearson r : -0.3213 (p = 0.0067)
+  Equation  : Max_Jerk_Lat = (-67.0301 * u_clouds) + 244.9983
+  Std Error : 23.9553
+
+Pairing: u_wetness -> Max_CTE
+  Pearson r : 0.5219 (p = 0.0000)
+  Equation  : Max_CTE = (0.5530 * u_wetness) + 1.0394
+  Std Error : 0.1096
+
+Pairing: u_wetness -> Min_TLC
+  Pearson r : -0.4253 (p = 0.0002)
+  Equation  : Min_TLC = (-0.0136 * u_wetness) + 0.0245
+  Std Error : 0.0035
+
+Pairing: u_wetness -> Max_Jerk_Long
+  Pearson r : 0.2986 (p = 0.0120)
+  Equation  : Max_Jerk_Long = (38.5936 * u_wetness) + 229.1177
+  Std Error : 14.9583
+
+Pairing: u_wetness -> Max_Jerk_Lat
+  Pearson r : -0.2776 (p = 0.0200)
+  Equation  : Max_Jerk_Lat = (-57.7951 * u_wetness) + 240.4126
+  Std Error : 24.2575
+
+Pairing: u_wetness -> Total_Evasions
+  Pearson r : 0.5124 (p = 0.0000)
+  Equation  : Total_Evasions = (1.9039 * u_wetness) + -0.5385
+  Std Error : 0.3870
+
+Pairing: u_wetness -> LDR_Percent
+  Pearson r : 0.5058 (p = 0.0000)
+  Equation  : LDR_Percent = (0.1542 * u_wetness) + -0.0434
+  Std Error : 0.0319
+

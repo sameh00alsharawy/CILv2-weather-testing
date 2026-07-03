@@ -1,0 +1,138 @@
+==============================================================================
+GROUP A: SPATIAL TRACKING (Strict Model: Sun & Wetness Only)
+==============================================================================
+
+--- MODEL FOR: Max_CTE ---
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:                Max_CTE   R-squared:                       0.674
+Model:                            OLS   Adj. R-squared:                  0.659
+Method:                 Least Squares   F-statistic:                     45.43
+Date:                Fri, 03 Jul 2026   Prob (F-statistic):           4.82e-16
+Time:                        00:00:00   Log-Likelihood:                 22.595
+No. Observations:                  70   AIC:                            -37.19
+Df Residuals:                      66   BIC:                            -28.20
+Df Model:                           3
+Covariance Type:            nonrobust
+=======================================================================================
+                          coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------
+Intercept               1.1523      0.085     13.615      0.000       0.983       1.321
+u_sun_alt              -0.1885      0.154     -1.226      0.225      -0.495       0.118
+u_wetness               0.9474      0.143      6.606      0.000       0.661       1.234
+u_sun_alt:u_wetness    -0.8679      0.265     -3.271      0.002      -1.398      -0.338
+==============================================================================
+Omnibus:                        2.042   Durbin-Watson:                   2.170
+Prob(Omnibus):                  0.360   Jarque-Bera (JB):                1.450
+Skew:                          -0.040   Prob(JB):                        0.484
+Kurtosis:                       3.701   Cond. No.                         19.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
+
+--- MODEL FOR: Min_TLC ---
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:                Min_TLC   R-squared:                       0.253
+Model:                            OLS   Adj. R-squared:                  0.219
+Method:                 Least Squares   F-statistic:                     7.464
+Date:                Fri, 03 Jul 2026   Prob (F-statistic):           0.000224
+Time:                        00:00:00   Log-Likelihood:                 238.85
+No. Observations:                  70   AIC:                            -469.7
+Df Residuals:                      66   BIC:                            -460.7
+Df Model:                           3
+Covariance Type:            nonrobust
+=======================================================================================
+                          coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------
+Intercept               0.0294      0.004      7.638      0.000       0.022       0.037
+u_sun_alt              -0.0110      0.007     -1.568      0.122      -0.025       0.003
+u_wetness              -0.0266      0.007     -4.068      0.000      -0.040      -0.014
+u_sun_alt:u_wetness     0.0282      0.012      2.336      0.023       0.004       0.052
+==============================================================================
+Omnibus:                        3.954   Durbin-Watson:                   1.707
+Prob(Omnibus):                  0.138   Jarque-Bera (JB):                3.473
+Skew:                           0.544   Prob(JB):                        0.176
+Kurtosis:                       3.071   Cond. No.                         19.5
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
+
+
+==============================================================================
+GROUP B: BOUNDARY FAILURES (Nuanced Model: Sun, Wetness, & Clouds)
+==============================================================================
+
+--- MODEL FOR: Total_Evasions ---
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:         Total_Evasions   R-squared:                       0.672
+Model:                            OLS   Adj. R-squared:                  0.641
+Method:                 Least Squares   F-statistic:                     21.54
+Date:                Fri, 03 Jul 2026   Prob (F-statistic):           1.38e-13
+Time:                        00:00:00   Log-Likelihood:                -65.378
+No. Observations:                  70   AIC:                             144.8
+Df Residuals:                      63   BIC:                             160.5
+Df Model:                           6
+Covariance Type:            nonrobust
+=======================================================================================
+                          coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------
+Intercept              -0.7575      0.494     -1.534      0.130      -1.745       0.230
+u_sun_alt              -0.2083      0.831     -0.251      0.803      -1.868       1.452
+u_wetness               5.5832      0.691      8.080      0.000       4.202       6.964
+u_clouds               -0.4937      0.734     -0.672      0.504      -1.961       0.973
+u_sun_alt:u_wetness    -5.0787      0.962     -5.281      0.000      -7.000      -3.157
+u_clouds:u_wetness     -2.5975      0.975     -2.663      0.010      -4.547      -0.648
+u_sun_alt:u_clouds      2.5969      1.049      2.475      0.016       0.500       4.694
+==============================================================================
+Omnibus:                       10.080   Durbin-Watson:                   1.959
+Prob(Omnibus):                  0.006   Jarque-Bera (JB):               10.235
+Skew:                           0.758   Prob(JB):                      0.00599
+Kurtosis:                       4.100   Cond. No.                         27.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
+
+--- MODEL FOR: LDR_Percent ---
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:            LDR_Percent   R-squared:                       0.687
+Model:                            OLS   Adj. R-squared:                  0.657
+Method:                 Least Squares   F-statistic:                     23.06
+Date:                Fri, 03 Jul 2026   Prob (F-statistic):           3.35e-14
+Time:                        00:00:00   Log-Likelihood:                 111.29
+No. Observations:                  70   AIC:                            -208.6
+Df Residuals:                      63   BIC:                            -192.8
+Df Model:                           6
+Covariance Type:            nonrobust
+=======================================================================================
+                          coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------------
+Intercept              -0.0509      0.040     -1.285      0.203      -0.130       0.028
+u_sun_alt              -0.0392      0.067     -0.589      0.558      -0.172       0.094
+u_wetness               0.4570      0.055      8.251      0.000       0.346       0.568
+u_clouds               -0.0579      0.059     -0.983      0.329      -0.175       0.060
+u_sun_alt:u_wetness    -0.4183      0.077     -5.427      0.000      -0.572      -0.264
+u_clouds:u_wetness     -0.2146      0.078     -2.745      0.008      -0.371      -0.058
+u_sun_alt:u_clouds      0.2504      0.084      2.977      0.004       0.082       0.418
+==============================================================================
+Omnibus:                        3.439   Durbin-Watson:                   1.849
+Prob(Omnibus):                  0.179   Jarque-Bera (JB):                2.900
+Skew:                           0.496   Prob(JB):                        0.235
+Kurtosis:                       3.109   Cond. No.                         27.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+==============================================================================
