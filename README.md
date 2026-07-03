@@ -233,3 +233,19 @@ Comparing between frames [Run 21] and [Run 07]:
 
 
 My reasoning is that the ResNet is experiencing low feature confidence. Because the lighting is poor, the textures it normally relies on are missing. The network is allowing weak gradients from irrelevant features to influence the steering output.
+
+
+## Further work
+
+### more samples which would allow us to do [] []
+[] 
+[]
+[]
+[]
+placeholders
+
+
+
+
+
+............................................................
