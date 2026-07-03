@@ -45,7 +45,7 @@ We test five independent environmental Factors:
 ### Sampling Methodology
 The sampling of these parameters is conducted using Latin Hypercube Sampling (LHS) to efficiently cover the parameter space. After iteratively generating and evaluating different sample sizes, we finalized a matrix of 70 runs. This specific size guaranteed that our parameters were sufficiently uniform and orthogonal.
 
-![LHS Sampling Graphs](path/to/your/sampling_graphs.png)
+![LHS Sampling Graphs](sampler_metrics/correlation_matrix.png)
 
 * **Concrete scenarios:** After sampling, we have 70 concrete scenarios.
 
