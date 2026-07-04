@@ -256,7 +256,7 @@ Comparing between frames [Run 21] and [Run 07]:
 ![Run 07 - Night / Pre-Evasion](analysis/master_results/run_007_Town02_rt0_LHS_006/frame_51298_master.jpg)
 
 
-My reasoning is that the ResNet is experiencing low feature confidence. Because the lighting is poor. The network is allowing weak gradients to influence the steering output.
+My reasoning is that the ResNet is experiencing low feature confidence, because the lighting is poor. The network is allowing weak gradients to influence the steering output.
 
 ---
 
