@@ -105,7 +105,7 @@ The analysis is centered around four main categories of KPIs:
 
 I used the Interquartile Range (IQR) method (+- 1.5 * IQR) to define the operational limits for each metric, and to isolate all the outlier runs for further XAI analysis.
 
-the outliers table is [here](analysis/outlier_runs_table.csv)
+The outliers table is [here](analysis/outlier_runs_table.csv).
 
 ## Linear Correlations
 This matrix evaluates the isolated linear relationship between the input factors and the KPIs.
