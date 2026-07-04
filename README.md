@@ -17,10 +17,10 @@ For this analysis to be valid, we rely on several foundational assumptions:
 Rather than relying purely on aggregate failure rates, this project is trying to bridge the gap between statistical safety validation and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of compounding environmental variables, we isolated the  mathematical thresholds where spatial tracking collapses, and engineered the tools to see *why* the network failed.
 
 ### 1. Engineered Custom XAI Diagnostics (LRP)
-When I tried implemnting the dignostics panel using the  Standard Pythorch Grad-Cam, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
+When I tried implementing the dignostics panel using the Standard Pytorch Grad-CAM, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
 
 ![XAI Diagnostic Panel - Pre-Evasion Frame](analysis/master_results/run_021_Town02_rt0_LHS_020/frame_183060_master.jpg)
-*Custom 4x6 Diagnostic Panel: Visualizing, global weighted attention, GradCam output W.R.T steering, fusion between GradCam and attention, and the cognitive division of labor across the Transformer's attention heads*
+*Custom 4x6 Diagnostic Panel: Visualizing global weighted attention, GradCam output W.R.T steering, fusion between GradCam and attention, and the cognitive division of labor across the Transformer's attention heads*
 
 
 ### 2. Efficient Validation via Targeted Design of Experiments
@@ -269,6 +269,7 @@ If you wish to replicate this experiment locally from scratch—using the exact 
 ### Phase 0: Environment Initialization
 1. Launch the Unreal Engine CARLA server locally (ensure it is active on Port 2000).
 2. Build and activate the exact Python dependencies from the exported environment file by running:
+   
    `conda env create -f environment.yaml`
    `conda activate [your_env_name]`
 
@@ -279,13 +280,15 @@ If you wish to replicate this experiment locally from scratch—using the exact 
 3. **Output:** This generates `test_matrix.json` and `samples.csv`.
 
 ### Phase 2: Execution & Telemetry Logging
-1. Launch the batch manager, which will automatically read the matrix and sequentially spawn the AI agent for every run: 
+1. Launch the batch manager, which will automatically read the matrix and sequentially spawn the AI agent for every run:
+   
    `python orchestrator.py`
-2. **Output:** Upon completion of the batch, the `output_dir` will contain folders for each run, complete with raw telemetry CSVs and saved camera frames.
-3. you can also download my 70 runs from [here](https://drive.google.com/file/d/1krKciE2ZAuBNNW2tA12UytHNmGcopy6p/view?usp=sharing)
+3. **Output:** Upon completion of the batch, the `output_dir` will contain folders for each run, complete with raw telemetry CSVs and saved camera frames.
+4. you can also download my 70 runs from [here](https://drive.google.com/file/d/1krKciE2ZAuBNNW2tA12UytHNmGcopy6p/view?usp=sharing)
 
 ### Phase 3: Statistical Validation
 1. Calculate the 8 KPIs (Max CTE, Min TLC, RMS Jerk, Evasions, etc.) from the raw arrays by running: 
+    
    `python post_processing.py`
 2. Execute the `statsmodels` multiple regression math by running: 
    `python run_ols_regression.py`
@@ -294,8 +297,10 @@ If you wish to replicate this experiment locally from scratch—using the exact 
 ### Phase 4: XAI Outlier Diagnostics
 1. Use the IQR method to flag the specific runs that resulted in critical spatial failures: 
    `python extract_outliers.py`
-2. Re-run those specific failure frames back through the network with the custom LRP PyTorch hooks activated. You must pass the specific run name. For example, to process all evasion windows for run 7, execute: 
+2. Re-run those specific failure frames back through the network with the custom LRP PyTorch hooks activated. You must pass the specific run name. For example, to process all evasion windows for run 7, execute:
+    
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006`
+    
    you can download the results from my runs [here](https://drive.google.com/file/d/1ZnQvr6vGe-Dz4IloIj94rOo4dd03H3q5/view?usp=sharing)
 4. *(Optional)* To process a hardcoded frame range instead of the automatic evasion windows, append the frame flags: 
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
