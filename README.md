@@ -3,14 +3,33 @@
 This repo was developed as a portfolio project to explore some subjects I am interested in, mainly Explainable AI (XAI), Vision-Action models, and the validation of autonomous vehicles. 
 
 ## Introduction and Objectives
-This analysis aims to evaluate the performance of the CILv2 [here](https://arxiv.org/pdf/2302.03198), an End-to-End Autonomous Driving Visual-Action model, to identify scenarios where a specific weather condition can lead to hazard.
+This analysis aims to evaluate the performance of the CILv2, [here](https://arxiv.org/pdf/2302.03198), an End-to-End Autonomous Driving Visual-Action model, to identify scenarios where a specific weather condition can lead to hazard.
 
 Because this testing is scenario-based and exploratory, it is inherently open-ended with no explicit operational design domain (ODD) requirements or strict pass/fail criteria provided by the original developers. I utilize traffic conflict techniques to evaluate the model's safety through surrogate safety measures, specifically focusing on path adherence and control stability under visual degradation.
 
 For this analysis to be valid, we rely on several foundational assumptions:
 * **The Accident-Conflict Axiom:** Traffic conflicts (such as severe lane deviations or extreme jerk) originate from the same underlying failure mechanisms as actual traffic accidents.
-* **The Constant Velocity Hypothesis:** When calculating predictive safety metrics like Time to Line Crossing (TLC), we assume the vehicle maintains its current longitudinal and lateral velocity over the immediate prediction horizon.
-* **The Unchanged Trajectory Hypothesis:** We assume the vehicle's current steering angle and acceleration vectors remain constant until the lane boundary is breached, meaning the AI does not initiate an emergency evasive maneuver during the micro-calculation window.
+* **The Constant Velocity assumption:** When calculating predictive safety metrics like Time to Line Crossing (TLC), we assume the vehicle maintains its current longitudinal and lateral velocity over the immediate prediction horizon.
+* **The Unchanged Trajectory assumption:** We assume the vehicle's current steering angle and acceleration vectors remain constant until the lane boundary is breached, meaning the AI does not initiate an emergency evasive maneuver during the micro-calculation window.
+
+## Executive Summary & Key Contributions
+
+Rather than relying purely on aggregate failure rates, this project is trying to bridge the gap between statistical safety validation and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of compounding environmental variables, we isolated the  mathematical thresholds where spatial tracking collapses, and engineered the tools to see *why* the network failed.
+
+### 1. Engineered Custom XAI Diagnostics (LRP)
+When I tried implemnting the dignostics panel using the  Standard Pythorch Grad-Cam, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
+
+![XAI Diagnostic Panel - Pre-Evasion Frame](analysis/master_results/run_021_Town02_rt0_LHS_020/frame_183060_master.jpg)
+*Custom 4x6 Diagnostic Panel: Visualizing, global weighted attention, GradCam output W.R.T steering, fusion between GradCam and attention, and the cognitive division of labor across the Transformer's attention heads*
+
+
+### 2. Efficient Validation via Targeted Design of Experiments
+Useful insights regarding domain effects on a driving model can be obtained by leveraging a structured, targeted Design of Experiments (DoE). By utilizing a low number of runs sampled from continuous input factors rather than relying on brute-force testing, and by applying surrogate safety measures combined with statistical analysis instead of standard pass/fail metrics, we successfully isolate compounding environmental vulnerabilities.
+
+
+![Sun Altitude vs Evasions Scatter Plot](analysis/marginal_u_sun_alt_vs_Max_CTE.png)
+*Marginal Impact Analysis: The strong negative correlation (r = -0.60) highlights the  degradation of the model's spatial tracking (Max CTE) in low-light environments.*
+
 
 ## Design of Experiment and Sampling
 
@@ -217,7 +236,7 @@ To overcome this, we engineered a custom Layer-wise Relevance Propagation (LRP) 
 By combining these dynamic attention weights with ResNet-level Grad-CAM extractions, we established a composite 4x6 Master Diagnostic Panel. The analysis of pre-lane-evasion and stable-driving frames revealed two behaviors:
 
 * **Cognitive Division of Labor:** The model actively shifts processing power between its 4 attention heads based on the situation, but for most of the frames the heads have a near global importance that rarely changes, 1 > 2 > 3 > 4. 
-* **Uncertainty and Feature Confidence:** In frames immediately preceding a lane evasion (particularly in low-light environments), the Grad-CAM visualizations demonstrate spatial diffusion.
+* **Uncertainty and Feature Confidence:** In frames immediately preceding a lane evasion (particularly in low-light environments), the Grad-CAM visualizations demonstrate low feature confidence, visually.
 
 The model ignores painted lane lines and instead it anchors its steering to:
 * **Road Boundaries:** Where the gray asphalt meets the sidewalk, grass, or buildings.
