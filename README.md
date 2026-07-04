@@ -260,6 +260,31 @@ My reasoning is that the ResNet is experiencing low feature confidence, because 
 
 ---
 
+## Recommendations for Training Methodologies
+
+**Continuous Domain Randomization (CDR):**
+Currently, many end-to-end autonomous driving models are trained on datasets collected using CARLA’s discrete weather presets (e.g., `ClearNoon`, `HardRainSunset`, `WetCloudy`). This analysis demonstrates that performance degradation often occurs at specific, compounding interaction thresholds (like `u_wetness > 0.6` combined with `u_sun_alt < 0.2`) that can easily fall between the cracks of these discrete preset buckets. 
+
+We recommend utilizing continuous domain randomization during dataset collection and simulation training. By sampling weather and environmental parameters from continuous uniform distributions rather than presets, networks can learn more robust, smooth feature representations across the entire environmental hyperspace.
+
+---
+
+## Further Work
+
+
+### 1. Scaling the Design of Experiments
+Increasing the number of simulation runs would unlock several analytical capabilities:
+* **Non-Linear Modeling:** Scaling beyond $N=70$ allows for the utilization of non-linear modeling techniques (such as Response Surface Methodology) without the risk of overfitting. This would enable the use of non-linear degradation curves.
+* **Expanding Input Factors:** A larger sample size permits the introduction of additional environmental and sensor-level factors while maintaining the statistical independence and uniformity of the Latin Hypercube Sample.
+* **Multi-Route Variance:** Executing multiple stochastic iterations per sample across different routes ensures the findings are globally applicable and not overfitted to a single route's geometry.
+
+### 2. Dynamic Hazard Triggering
+The ultimate risk lies in delayed reaction times to dynamic hazards. Future testing should evaluate the model against dynamic edge cases—such as a pedestrian crossing the road or a lead vehicle braking hard—*during* an isolated environmental trigger (like the "wet mirror" or low-light scenario). 
+
+### 3. Benchmarking State-of-the-Art (SoTA) Architectures
+This project tested a classic CNN/Transformer baseline to establish the methodology. A possible next step is to apply this exact targeted DoE and custom LRP forensic pipeline to modern, State-of-the-Art end-to-end driving models. This will test whether modern architectural innovations—such as advanced multi-modal sensor fusion or pure Vision-Transformer backbones—actually eliminate the compounding weather vulnerabilities.
+
+
 ## Reproducibility Guide: How to Run It
 
 If you wish to replicate this experiment locally from scratch—using the exact parameters or your own custom weather matrices—follow this chronological pipeline. 
