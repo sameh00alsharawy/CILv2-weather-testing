@@ -12,7 +12,7 @@ For this analysis to be valid, we rely on several foundational assumptions:
 * **The Constant Velocity assumption:** When calculating predictive safety metrics like Time to Line Crossing (TLC), we assume the vehicle maintains its current longitudinal and lateral velocity over the immediate prediction horizon.
 * **The Unchanged Trajectory assumption:** We assume the vehicle's current steering angle and acceleration vectors remain constant until the lane boundary is breached, meaning the AI does not initiate an emergency evasive maneuver during the micro-calculation window.
 
-## Executive Summary & Key Contributions
+##  Summary & Key Contributions
 
 Rather than relying purely on aggregate failure rates, this project is trying to bridge the gap between statistical safety validation and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of compounding environmental variables, we isolated the  mathematical thresholds where spatial tracking collapses, and engineered the tools to see *why* the network failed.
 
@@ -70,22 +70,22 @@ The sampling of these parameters is conducted using Latin Hypercube Sampling (LH
 </div>
 * **Concrete scenarios:** After sampling, we have 70 concrete scenarios.
 
-## Execution
+## Execution Architecture
 
-The simulation and testing pipeline is driven by a decoupled architecture, separating the environmental scenario management from the neural network inference. This is handled primarily by two core scripts:
+The simulation and testing pipeline is driven by a decoupled, fault-tolerant architecture. The system separates batch management from the neural network inference and simulation rendering. This is handled by two core scripts:
 
-### 1. The Simulation Master (`orchestrator.py`)
-This script acts as the high-level environment and scenario manager. Its primary responsibilities include:
-* **Matrix Ingestion:** Reading the 70-run Latin Hypercube Sampling (LHS) test matrix.
-* **World Initialization:** Connecting to the CARLA server, spawning Town02, and instantiating the ego-vehicle (Lincoln MKZ 2017) at the designated route starting point.
-* **Environmental Control:** Dynamically applying the specific continuous weather parameters (Sun Altitude, Road Wetness, Cloudiness, etc.) for each specific run.
-* **Data Logging:** Recording the continuous telemetry outputs (Cross-Track Error, Acceleration, Lane Invasions) at a fixed simulation time-step to generate the final analytical datasets.
+### 1. The Automated Batch Manager (`orchestrator.py`)
+This script acts as the high-level supervisor. It does not interact with the CARLA Python API directly; instead, it manages the execution of the experiment matrix. Its primary responsibilities include:
+* **Matrix Ingestion & State Tracking:** Reading the 70-run Latin Hypercube Sampling (LHS) test matrix and maintaining a `progress_log.json` to allow the batch to safely resume if the simulator crashes.
+* **Subprocess Spawning:** For each run in the matrix, it dynamically constructs the required environmental CLI arguments and spawns the AI Driver script as an isolated subprocess.
+* **Fault Tolerance:** Enforcing a strict 5-minute timeout per run to detect and kill frozen Unreal Engine instances, followed by a mandatory network socket cooldown period before initiating the next run.
 
-### 2. The AI Driver (`unified_ai_control.py`)
-This script operates as the autonomous agent, completely blind to the "ground truth" of the simulator, relying solely on its sensor suite. Its responsibilities include:
-* **Sensor Fusion & Preprocessing:** Capturing the three front-facing RGB camera feeds (Left, Center, Right) and the current ego-speed, applying the necessary normalizations to match the CILv2 training distribution.
-* **Inference Engine:** Loading the frozen CILv2 PyTorch model weights and executing the forward pass. It takes the visual feature maps, fuses them with the navigational command token, and calculates the required control vector.
-* **Actuation:** Translating the network's continuous outputs back into discrete CARLA control commands (Steer, Throttle, Brake) and applying them to the vehicle chassis for the next simulation frame.
+### 2. The AI Driver & Simulation Worker (`unified_ai_control.py`)
+This script is called by the orchestrator. It acts as both the environment setup tool and the autonomous agent for a single specific run. Its responsibilities include:
+* **World Initialization & Sanitization:** Connecting to the CARLA server, executing a "nuclear sweep" to delete any zombie actors from previous crashed runs, freezing all traffic lights to green, and spawning the ego-vehicle (Lincoln MKZ 2017) at the designated XML route start point.
+* **Asynchronous Telemetry & Rendering:** Running the synchronous CARLA loop while offloading the heavy I/O tasks (saving the 3-camera RGB arrays to disk and writing continuous telemetry like True Cross-Track Error and Jerk to a CSV) to a background thread to prevent simulation lag.
+* **Inference Engine & Actuation:** Capturing the front-facing RGB camera feeds, applying CILv2 normalizations, loading the frozen PyTorch weights, executing the forward pass, and translating the continuous network outputs into discrete control commands (Steer, Throttle, Brake) applied to the vehicle chassis.
+
 
 ## Analysis
 
@@ -256,7 +256,51 @@ Comparing between frames [Run 21] and [Run 07]:
 ![Run 07 - Night / Pre-Evasion](analysis/master_results/run_007_Town02_rt0_LHS_006/frame_51298_master.jpg)
 
 
-My reasoning is that the ResNet is experiencing low feature confidence. Because the lighting is poor, the textures it normally relies on are missing. The network is allowing weak gradients from irrelevant features to influence the steering output.
+My reasoning is that the ResNet is experiencing low feature confidence. Because the lighting is poor. The network is allowing weak gradients to influence the steering output.
+
+---
+
+## Reproducibility Guide: How to Run It
+
+If you wish to replicate this experiment locally from scratch—using the exact parameters or your own custom weather matrices—follow this chronological pipeline. 
+
+*Note: This pipeline is designed for local execution to accommodate the CARLA simulator's rendering requirements.*
+
+### Phase 0: Environment Initialization
+1. Launch the Unreal Engine CARLA server locally (ensure it is active on Port 2000).
+2. Build and activate the exact Python dependencies from the exported environment file by running:
+   `conda env create -f environment.yaml`
+   `conda activate [your_env_name]`
+
+### Phase 1: DoE Matrix Generation
+1. Generate the Latin Hypercube Sample by running: 
+   `python sampler.py`
+2. *(Optional)* Modify this script to change the sample size or alter the uniform distribution boundaries for the weather factors. 
+3. **Output:** This generates `test_matrix.json` and `samples.csv`.
+
+### Phase 2: Execution & Telemetry Logging
+1. Launch the batch manager, which will automatically read the matrix and sequentially spawn the AI agent for every run: 
+   `python orchestrator.py`
+2. **Output:** Upon completion of the batch, the `output_dir` will contain folders for each run, complete with raw telemetry CSVs and saved camera frames.
+3. you can also download my 70 runs from [here](google.com)
+
+### Phase 3: Statistical Validation
+1. Calculate the 8 KPIs (Max CTE, Min TLC, RMS Jerk, Evasions, etc.) from the raw arrays by running: 
+   `python post_processing.py`
+2. Execute the `statsmodels` multiple regression math by running: 
+   `python run_ols_regression.py`
+3. **Output:** This generates the saturated and pruned regression `.txt` files, correlation heatmaps, and the Plotly HTML interactive surfaces in the `/analysis` directory.
+
+### Phase 4: XAI Outlier Diagnostics
+1. Use the IQR method to flag the specific runs that resulted in critical spatial failures: 
+   `python extract_outliers.py`
+2. Re-run those specific failure frames back through the network with the custom LRP PyTorch hooks activated. You must pass the specific run name. For example, to process all evasion windows for run 7, execute: 
+   `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006`
+   you can download the results from my runs [here](google.com)
+4. *(Optional)* To process a hardcoded frame range instead of the automatic evasion windows, append the frame flags: 
+   `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
+6. you can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
+8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
 
 
 ## Further work
@@ -330,10 +374,6 @@ My reasoning is that the ResNet is experiencing low feature confidence. Because 
 #### 1
 #### 1
 #### 1
-placeholders
-
-
-
 
 
 ............................................................
