@@ -34,7 +34,7 @@ Useful insights regarding domain effects on a driving model can be obtained by l
 ## Design of Experiment and Sampling
 
 ### Validation Objectives (Why test?)
-The methodology of this experiment is anchored in the foundational principles of autonomous systems testing I was taught in my coursework:
+The methodology of this experiment is anchored in the foundational principles of autonomous systems testing I learned in my coursework:
 
 * **Characterize:** Determine the effect of each environmental factor on the driving response and mathematically isolate how these factors interact with one another.
 * **Predict:** Forecast the vehicle's responses and failure thresholds for given levels of visual degradation.
