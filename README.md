@@ -284,7 +284,7 @@ If you wish to replicate this experiment locally from scratch—using the exact 
    
    `python orchestrator.py`
 3. **Output:** Upon completion of the batch, the `output_dir` will contain folders for each run, complete with raw telemetry CSVs and saved camera frames.
-4. you can also download my 70 runs from [here](https://drive.google.com/file/d/1krKciE2ZAuBNNW2tA12UytHNmGcopy6p/view?usp=sharing)
+4. You can also download my 70 runs from [here](https://drive.google.com/file/d/1krKciE2ZAuBNNW2tA12UytHNmGcopy6p/view?usp=sharing).
 
 ### Phase 3: Statistical Validation
 1. Calculate the 8 KPIs (Max CTE, Min TLC, RMS Jerk, Evasions, etc.) from the raw arrays by running: 
@@ -301,10 +301,10 @@ If you wish to replicate this experiment locally from scratch—using the exact 
     
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006`
     
-   you can download the results from my runs [here](https://drive.google.com/file/d/1ZnQvr6vGe-Dz4IloIj94rOo4dd03H3q5/view?usp=sharing)
+   You can download the results from my runs [here](https://drive.google.com/file/d/1ZnQvr6vGe-Dz4IloIj94rOo4dd03H3q5/view?usp=sharing).
 4. *(Optional)* To process a hardcoded frame range instead of the automatic evasion windows, append the frame flags: 
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
-6. you can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
+6. You can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
 8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
 
 
