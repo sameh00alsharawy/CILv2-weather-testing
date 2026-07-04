@@ -260,14 +260,14 @@ My reasoning is that the ResNet is experiencing low feature confidence, because 
 
 ---
 
-## Recommendations for Training Methodologies
+## Recommendations 
 
-**Continuous Domain Randomization (CDR):**
+### Continuous Domain Randomization (CDR):
 Currently, many end-to-end autonomous driving models are trained on datasets collected using CARLA’s discrete weather presets (e.g., `ClearNoon`, `HardRainSunset`, `WetCloudy`). This analysis demonstrates that performance degradation often occurs at specific, compounding interaction thresholds (like `u_wetness > 0.6` combined with `u_sun_alt < 0.2`) that can easily fall between the cracks of these discrete preset buckets. 
 
 I recommend utilizing continuous domain randomization during dataset collection and simulation training. By sampling weather and environmental parameters from continuous uniform distributions rather than presets, networks can learn more robust, smooth feature representations across the entire environmental hyperspace.
 
-**Mitigating Shortcut Learning via Auxiliary Tasks
+### Mitigating Shortcut Learning via Auxiliary Tasks
 The original CILv2 architecture utilizes speed prediction as an auxiliary learning task. Building on this architectural philosophy, I recommend to incorporate a secondary auxiliary head for semantic segmentation. 
 
 By forcing the shared ResNet backbone to simultaneously predict the embedding used to predict driving controls and a low-resolution mask of the drivable area, the network is mathematically penalized for spatial diffusion. This would anchor its attention on the correct causal features, such as lane lines and road boundaries.
@@ -338,77 +338,4 @@ If you wish to replicate this experiment locally from scratch—using the exact 
 8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
 
 
-## Further work
 
-### more samples which would allow us to do [] []
-
-#### 1
-#### 1
-#### 1
-#### 1
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-#### 1
-#### 1
-#### 1
-#### 1
-
-
-............................................................
