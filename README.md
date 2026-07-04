@@ -17,7 +17,7 @@ For this analysis to be valid, we rely on several foundational assumptions:
 Rather than relying purely on aggregate failure rates, this project is trying to bridge the gap between statistical safety validation and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of compounding environmental variables, we isolated the  mathematical thresholds where spatial tracking collapses, and engineered the tools to see *why* the network failed.
 
 ### 1. Engineered Custom XAI Diagnostics (LRP)
-When I tried implementing the dignostics panel using the Standard Pytorch Grad-CAM, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
+When I tried implementing the diagnostics panel using the Standard PyTorch Grad-CAM, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
 
 ![XAI Diagnostic Panel - Pre-Evasion Frame](analysis/master_results/run_021_Town02_rt0_LHS_020/frame_183060_master.jpg)
 *Custom 4x6 Diagnostic Panel: Visualizing global weighted attention, GradCam output W.R.T steering, fusion between GradCam and attention, and the cognitive division of labor across the Transformer's attention heads*
@@ -33,16 +33,12 @@ Useful insights regarding domain effects on a driving model can be obtained by l
 
 ## Design of Experiment and Sampling
 
-### Why test?
-* **Characterize**
-  * Want to know the effect of each factor on the response and how the factors may interact with each other.
-* **Predict**
-  * Want to predict responses for a given level(s) of the factor(s).
-* **Optimize**
-  * Want to find the levels of the factors that optimizes the responses.
-* **Design**
-  * Want to identify key parameters, compare alternatives.
-* *Note: The points – Optimize and Design – are out of the scope of this project but one aim of this project is to try to come up with recommendations based on the statistical and XAI analysis.*
+### Validation Objectives
+The methodology of this experiment is anchored in the foundational principles of autonomous systems testing:
+
+* **Characterize:** Determine the effect of each environmental factor on the driving response and mathematically isolate how these factors interact with one another.
+* **Predict:** Forecast the vehicle's responses and failure thresholds for given levels of visual degradation.
+* **Optimize & Design:** Identify key parameters and compare system alternatives. *(Note: While full architectural optimization and design fall outside the scope of this specific software-level analysis, a core aim of this project is to generate actionable engineering recommendations based on the statistical and XAI findings.)*
 
 ### Environmental Isolation & Constraints
 To strictly isolate the impact of weather conditions, the simulation environment was completely cleared of dynamic traffic (other vehicles and pedestrians), and all traffic lights were permanently frozen to green. This ensures that any observed driving failures are purely the result of environmental visual degradation, not unpredictable traffic interactions.
@@ -332,131 +328,9 @@ If you wish to replicate this experiment locally from scratch—using the exact 
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006`
     
    You can download the results from my runs [here](https://drive.google.com/file/d/1ZnQvr6vGe-Dz4IloIj94rOo4dd03H3q5/view?usp=sharing).
-4. *(Optional)* To process a hardcoded frame range instead of the automatic evasion windows, append the frame flags: 
+4. *(Optional)* To process a hardcoded frame range instead of the automatic evasion windows, append the frame flags:
+   
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
 6. You can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
 8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
-
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
-#### 1
-
 
