@@ -102,6 +102,11 @@ The u_sun_alt vs Max_CTE plot demonstrates the model's highest individual point 
 </div>
 
 
+Sun Altitude vs. Total Evasions marginal analysis reveals a statistically significant negative correlation (r = -0.37, p = 0.001) between ambient light and physical boundary failures. While bright daylight conditions (u_sun_alt ~> 0.5) consistently result in zero lane departures, the frequency of physical evasions spikes dramatically as the environment transitions into night, reaching up to 5 critical boundary failures per run.
+<div align="center">
+<img src="analysis/marginal_u_sun_alt_vs_Total_Evasions.png" alt="Alt Text" width="600" height="600">
+</div>
+
 
 ### Wetness
 **Wetness:**
