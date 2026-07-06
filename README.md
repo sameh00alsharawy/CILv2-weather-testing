@@ -5,7 +5,7 @@ This repo was developed as a portfolio project to explore some subjects I am int
 ## Introduction and Objectives
 This analysis aims to evaluate the performance of the CILv2, [here](https://arxiv.org/pdf/2302.03198), an End-to-End Autonomous Driving Visual-Action model, to identify scenarios where a specific weather condition can lead to hazard.
 
-Because this testing is scenario-based and exploratory, it is inherently open-ended with no explicit operational design domain (ODD) requirements or strict pass/fail criteria provided by the original developers. I utilize traffic conflict techniques to evaluate the model's safety through surrogate safety measures, specifically focusing on path adherence and control stability under visual degradation.
+Because this testing is scenario-based and exploratory, it is inherently open-ended with no explicit operational design domain (ODD) or requirements  provided by the original developers. Rather than relying purely on detected collisions to define failure rates, I utilize traffic conflict techniques to evaluate the model's safety through surrogate safety measures, specifically focusing on path adherence and control stability under visual degradation.
 
 For this analysis to be valid, we rely on several foundational assumptions:
 * **The Accident-Conflict Axiom:** Traffic conflicts (such as severe lane deviations or extreme jerk) originate from the same underlying failure mechanisms as actual traffic accidents.
@@ -14,18 +14,17 @@ For this analysis to be valid, we rely on several foundational assumptions:
 
 ##  Summary & Key Contributions
 
-Rather than relying purely on aggregate failure rates, this project is trying to bridge the gap between statistical safety validation and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of compounding environmental variables, we isolated the  mathematical thresholds where spatial tracking collapses, and engineered the tools to see *why* the network failed.
+Rather than relying purely on  combined failure rates, this project is trying to bridge the gap between the statistical analysis and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of environmental variables, I isolated the  mathematical thresholds where spatial tracking collapses or a lane evasion occurs , and engineered the tools to help see *why* the network failed.
 
 ### 1. Engineered Custom XAI Diagnostics (LRP)
-When I tried implementing the diagnostics panel using the Standard PyTorch Grad-CAM, it failed to capture the dynamic routing of this architecture due to hardware-level memory optimizations. To bypass PyTorch’s autograd memory cleanup, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline. By manually extracting the frozen Output Projection matrix and un-projecting the attention gradients, we successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. 
+To capture the dynamic division of labour between the four attention heads, I extracted the frozen Output Projection matrix and intercepted the gradients flowing back from the FC layer after the transformer, then un-projected the attention gradients. I successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. I choose that method to avoid the hardware-level memory optimizations in PyTorch’s autograd. 
 
 ![XAI Diagnostic Panel - Pre-Evasion Frame](analysis/master_results/run_021_Town02_rt0_LHS_020/frame_183060_master.jpg)
 *Custom 4x6 Diagnostic Panel: Visualizing global weighted attention, GradCam output W.R.T steering, fusion between GradCam and attention, and the cognitive division of labor across the Transformer's attention heads*
 
 
 ### 2. Efficient Validation via Targeted Design of Experiments
-Useful insights regarding domain effects on a driving model can be obtained by leveraging a structured, targeted Design of Experiments (DoE). By utilizing a low number of runs sampled from continuous input factors rather than relying on brute-force testing, and by applying surrogate safety measures combined with statistical analysis instead of standard pass/fail metrics, we successfully isolate compounding environmental vulnerabilities.
-
+We can obtain useful insights regarding environmental and weather effects on a driving model and I dentify reasonably significant relations and interactions with a high degree of confidence even with a low number of sampled runs. To achieve this, I leveraged a structured, targeted Design of Experiments (DoE), and applied surrogate safety measures combined with statistical analysis instead of standard pass/fail metrics. I successfully isolate compounding environmental vulnerabilities.
 
 ![Sun Altitude vs Evasions Scatter Plot](analysis/marginal_u_sun_alt_vs_Max_CTE.png)
 *Marginal Impact Analysis: The strong negative correlation (r = -0.60) highlights the  degradation of the model's spatial tracking (Max CTE) in low-light environments.*
@@ -38,12 +37,12 @@ The methodology of this experiment is anchored in the foundational principles of
 
 * **Characterize:** Determine the effect of each environmental factor on the driving response and mathematically isolate how these factors interact with one another.
 * **Predict:** Forecast the vehicle's responses and failure thresholds for given levels of visual degradation.
-* **Optimize & Design:** Identify key parameters and compare system alternatives. *(Note: While full architectural optimization and design fall outside the scope of this specific software-level analysis, a core aim of this project is to generate actionable engineering recommendations based on the statistical and XAI findings.)*
+* **Optimize & Design:** Identify key parameters and compare system alternatives. *(Note: While  architectural optimization and design fall outside the scope of this specific analysis, an aim of this project is to generate engineering recommendations based on the statistical and XAI analysis.)*
 
 ### Environmental Isolation & Constraints
-To strictly isolate the impact of weather conditions, the simulation environment was completely cleared of dynamic traffic (other vehicles and pedestrians), and all traffic lights were permanently frozen to green. This ensures that any observed driving failures are purely the result of environmental visual degradation, not unpredictable traffic interactions.
+To strictly isolate the impact of weather conditions, the simulation environment was completely cleared of dynamic traffic (other vehicles and pedestrians), and all traffic lights were permanently frozen to green. This ensures that any observed driving failures are purely the result of environmental and weather conditions, not unpredictable traffic interactions.
 
-Furthermore, due to the computationally intensive nature of rendering high-fidelity Unreal Engine weather physics while simultaneously running the neural network inference, we were strictly constrained in the total number of possible simulation runs. To maximize statistical validity within these compute and time constraints, we relied on Key Performance Indicators (KPIs).
+Furthermore, due to the computationally intensive nature of rendering high-fidelity Unreal Engine weather physics while simultaneously running the neural network inference, I were  constrained in the total number of possible simulation runs. To maximize statistical validity within these compute and time constraints, we relied on Key Performance Indicators (KPIs).
 
 ## Scenario Definition
 
@@ -58,12 +57,13 @@ We test five independent environmental Factors:
 5. **Fog Density** (Depth perception and contrast loss)
 
 ### Sampling Methodology
-The sampling of these parameters is conducted using Latin Hypercube Sampling (LHS) to efficiently cover the parameter space. After iteratively generating and evaluating different sample sizes, we finalized a matrix of 70 runs. This specific size guaranteed that our parameters were sufficiently uniform and orthogonal.
+The sampling of these parameters is conducted using Latin Hypercube Sampling (LHS) to efficiently cover the parameter space while filtering impossible scenarios. After iteratively generating and evaluating different sample sizes, I finalized a matrix of 70 runs. This specific size guaranteed that our parameters were sufficiently uniform and orthogonal.
 
 <img src="sampler_metrics/parameter_histograms.png" alt="Alt Text" width="900" height="300">
 <div align="center">
 <img src="sampler_metrics/correlation_matrix.png" alt="Alt Text" width="600" height="600">
 </div>
+
 * **Concrete scenarios:** After sampling, we have 70 concrete scenarios.
 
 ## Execution Architecture
@@ -74,13 +74,13 @@ The simulation and testing pipeline is driven by a decoupled, fault-tolerant arc
 This script acts as the high-level supervisor. It does not interact with the CARLA Python API directly; instead, it manages the execution of the experiment matrix. Its primary responsibilities include:
 * **Matrix Ingestion & State Tracking:** Reading the 70-run Latin Hypercube Sampling (LHS) test matrix and maintaining a `progress_log.json` to allow the batch to safely resume if the simulator crashes.
 * **Subprocess Spawning:** For each run in the matrix, it dynamically constructs the required environmental CLI arguments and spawns the AI Driver script as an isolated subprocess.
-* **Fault Tolerance:** Enforcing a strict 5-minute timeout per run to detect and kill frozen Unreal Engine instances, followed by a mandatory network socket cooldown period before initiating the next run.
+* **Fault Tolerance:** Enforcing a strict 5-minute timeout per run to detect and kill frozen Unreal Engine instances.
 
 ### 2. The AI Driver & Simulation Worker (`unified_ai_control.py`)
 This script is called by the orchestrator. It acts as both the environment setup tool and the autonomous agent for a single specific run. Its responsibilities include:
-* **World Initialization & Sanitization:** Connecting to the CARLA server, executing a "nuclear sweep" to delete any zombie actors from previous crashed runs, freezing all traffic lights to green, and spawning the ego-vehicle (Lincoln MKZ 2017) at the designated XML route start point.
+* **World Initialization:** Connecting to the CARLA server, executing a sweep to delete any zombie actors from previous crashed runs, freezing all traffic lights to green, and spawning the ego-vehicle (Lincoln MKZ 2017) at the designated  route start point.
 * **Asynchronous Telemetry & Rendering:** Running the synchronous CARLA loop while offloading the heavy I/O tasks (saving the 3-camera RGB arrays to disk and writing continuous telemetry like True Cross-Track Error and Jerk to a CSV) to a background thread to prevent simulation lag.
-* **Inference Engine & Actuation:** Capturing the front-facing RGB camera feeds, applying CILv2 normalizations, loading the frozen PyTorch weights, executing the forward pass, and translating the continuous network outputs into discrete control commands (Steer, Throttle, Brake) applied to the vehicle chassis.
+* **Inference Engine & Actuation:** Capturing the front-facing RGB camera feeds, applying CILv2 normalizations, loading the frozen PyTorch weights, executing the forward pass, and translating the network outputs into control commands (Steer, Throttle, Brake) applied to the vehicle chassis.
 
 
 ## Analysis
@@ -88,8 +88,8 @@ This script is called by the orchestrator. It acts as both the environment setup
 ### KPIs
 The analysis is centered around four main categories of KPIs:
 
-* **Path adherence:** Measures how well the AI actions adhere to the path defined by the waypoints generated by CARLA. For that, I use Cross Track Error (CTE), which is the perpendicular distance between the current position and the intended reference line. We take the maximum of CTE for each run representing the worst-case scenario.
-* **Critical Risk:** Measuring how close the vehicle came to a critical risk, leaving the lane. For that we use TLC which is the estimated time it takes for a vehicle to cross the boundary if it continued on its current trajectory. We take the minimum TLC for each run representing the worst-case scenario.
+* **Path adherence:** Measures how well the AI actions adhere to the path defined by the waypoints generated by CARLA. For that, I use Cross Track Error (CTE), which is the perpendicular distance between the current position and the intended reference line. I take the maximum of CTE for each run representing the worst-case scenario.
+* **Critical Risk:** Measuring how close the vehicle came to a critical risk, leaving the lane. For that I use TLC which is the estimated time it takes for a vehicle to cross the boundary if it continued on its current trajectory. I take the minimum TLC for each run representing the worst-case scenario.
 * **Control confidence:** I use four metrics: maximum and RMS jerk for the lateral and longitudinal movement.
 * **Task Failure (Reality):**
   * **Total evasions:** The absolute number of times the vehicle's tires crossed the lane boundary.
@@ -99,7 +99,7 @@ The analysis is centered around four main categories of KPIs:
 
 ![KPI Boxplots](analysis/kpi_boxplots.png)
 
-I used the Interquartile Range (IQR) method (+- 1.5 * IQR) to define the operational limits for each metric, and to isolate all the outlier runs for further XAI analysis.
+I used the Interquartile Range (IQR) method (+- 1.5 * IQR) to define the operational limits for each metric, and to isolate all the outlier runs for further analysis.
 
 The outliers table is [here](analysis/outlier_runs_table.csv).
 
@@ -117,7 +117,7 @@ The u_sun_alt vs Max_CTE plot demonstrates the model's highest individual point 
 </div>
 
 
-Sun Altitude vs. Total Evasions marginal analysis reveals a statistically significant negative correlation (r = -0.37, p = 0.001) between ambient light and physical boundary failures. While bright daylight conditions (u_sun_alt ~> 0.5) consistently result in zero lane departures, the frequency of physical evasions spikes dramatically as the environment transitions into night, reaching up to 5 critical boundary failures per run.
+Sun Altitude vs. Total Evasions marginal analysis reveals a statistically significant negative correlation (r = -0.37, p = 0.001). While bright daylight conditions (u_sun_alt ~> 0.5) consistently result in zero lane departures, the frequency of physical evasions spikes as the environment transitions into night, reaching up to 5 critical boundary failures per run as it gets darker.
 <div align="center">
 <img src="analysis/marginal_u_sun_alt_vs_Total_Evasions.png" alt="Alt Text" width="600" height="600">
 </div>
@@ -125,7 +125,7 @@ Sun Altitude vs. Total Evasions marginal analysis reveals a statistically signif
 
 ### Wetness
 **Wetness:**
-Visual inspection reveals that road wetness does not cause linear degradation, but rather acts as a binary threshold trigger. At a ratio of ~0.6, reflection causes an abrupt decline in performance. If the road becomes a mirror at 0.6 wetness, that mirror is only dangerous if there is something bright to reflect.
+Visual inspection reveals that road wetness does not cause linear degradation, but rather acts as a binary threshold trigger. At a ratio of ~0.6, reflection causes an abrupt decline in performance.
 
 <div align="center">
 <img src="analysis/marginal_u_wetness_vs_Total_Evasions.png" alt="Alt Text" width="600" height="600">
@@ -151,7 +151,7 @@ Pearson correlation assumes the effect of all other factor are zero. For more ac
   
 **Overall Model Note:** This model is significant with strong explanatory power. But the drop in Adj. R-squared means there are insignificant input factors.
 
-* `u_wetness`: Highly significant. The coefficient is 1.0664. This means that if everything else is held at zero, pushing the road wetness to maximum adds over a full meter of drift to the car.
+* `u_wetness`: Highly significant. The coefficient is 1.0664. This means that if everything else is held at zero, pushing the road wetness to maximum adds over a full meter of max drift to the car.
 * `u_sun_alt` alone has a p-value of 0.461. It is not statistically significant on its own in this model. Sun altitude doesn't crash the car by itself; it crashes the car because of what it interacts with.
 * `u_sun_alt*u_wetness`: Highly significant. The coefficient is -0.8311.
   * **The Base Penalty** (`u_wetness` = +1.0664): in this equation, the main effect of wetness represents the danger of a wet road when the sun is at 0 (pitch black). A wet road at night is catastrophic. 
@@ -212,7 +212,7 @@ For both of these metrics, the equations strictly require the main effects and t
 For both of these metrics, the equations consider the following inputs:
 `u_sun_alt`, `u_wetness`, `u_clouds`, `u_sun_alt*u_wetness`, `u_clouds*u_wetness`, `u_sun_alt*u_clouds`.
 
-In the initial Max_CTE model, the Adjusted R-squared was 0.597. In this pruned model, it has increased to 0.659. The exact same phenomenon occurred for Total_Evasions, increasing from 0.604 to 0.641.
+In the initial Max_CTE model, the Adjusted R-squared was 0.597. In this pruned model, it has increased to 0.659. The same occurred for Total_Evasions, increasing from 0.604 to 0.641, as expected after removing the insignificant inputs.
 
 All details about the regression models can be found in `analysis/thesis_regression_summaries.txt` and `analysis/ols_regression.txt`.
 
@@ -221,15 +221,15 @@ All details about the regression models can be found in `analysis/thesis_regress
 
 To validate the decision-making process of the autonomous driving model, I implemented a custom diagnostic tool. The PyTorch Grad-CAM library was failing to capture the dynamic routing of the architectures due to hardware-level memory optimizations and early-fusion embeddings. 
 
-To overcome this, we engineered a custom Layer-wise Relevance Propagation (LRP) pipeline that manually extracts and un-projects the mathematical weights of the Transformer's attention heads on a frame-by-frame basis.
+To overcome this, I engineered a custom pipeline that manually extracts and un-projects the mathematical weights of the Transformer's attention heads on a frame-by-frame basis.
 
 ### Methodology
-* **Gradient Interception:** We bypassed PyTorch's autograd memory cleanup by retaining the gradient on the 512-dimensional output tensor (Y).
-* **Manual LRP Un-projection:** We extracted the frozen Output Projection matrix ($W^O$) and performed a manual reverse-projection ($\nabla X = \nabla Y \cdot W^O$).
+* **Gradient Interception:** bypassed PyTorch's autograd memory cleanup by retaining the gradient on the 512-dimensional output tensor (Y).
+* **Manual LRP Un-projection:** extracted the frozen Output Projection matrix ($W^O$) and performed a manual reverse-projection ($\nabla X = \nabla Y \cdot W^O$).
 * **Dynamic Attribution:** By slicing the un-projected gradient back into its 4 independent 128-dimensional subspaces, we calculated the exact, dynamic percentage of steering authority yielded by each Attention Head per frame.
 
 ### Key Findings
-By combining these dynamic attention weights with ResNet-level Grad-CAM extractions, we established a composite 4x6 Master Diagnostic Panel. The analysis of pre-lane-evasion and stable-driving frames revealed two behaviors:
+By combining these dynamic attention weights with ResNet-level Grad-CAM extractions, I established a composite 4x6 Master Diagnostic Panel. The analysis of pre-lane-evasion and stable-driving frames revealed two behaviors:
 
 * **Cognitive Division of Labor:** The model actively shifts processing power between its 4 attention heads based on the situation, but for most of the frames the heads have a near global importance that rarely changes, 1 > 2 > 3 > 4. 
 * **Uncertainty and Feature Confidence:** In frames immediately preceding a lane evasion (particularly in low-light environments), the Grad-CAM visualizations demonstrate low feature confidence, visually.
@@ -238,7 +238,7 @@ The model ignores painted lane lines and instead it anchors its steering to:
 * **Road Boundaries:** Where the gray asphalt meets the sidewalk, grass, or buildings.
 * **Distant Point:** Tracking the horizon to keep the car centered globally rather than locally.
 
-### Insight 1: Spatial Diffusion vs. Concentration
+### Spatial Diffusion vs. Concentration
 
 Comparing between frames [Run 21] and [Run 07]:
 #### Run 21
@@ -259,7 +259,7 @@ My reasoning is that the ResNet is experiencing low feature confidence, because 
 ## Recommendations 
 
 ### Continuous Domain Randomization (CDR):
-Currently, many end-to-end autonomous driving models are trained on datasets collected using CARLA’s discrete weather presets (e.g., `ClearNoon`, `HardRainSunset`, `WetCloudy`). This analysis demonstrates that performance degradation often occurs at specific, compounding interaction thresholds (like `u_wetness > 0.6` combined with `u_sun_alt < 0.2`) that can easily fall between the cracks of these discrete preset buckets. 
+Currently, many end-to-end autonomous driving models are trained on datasets collected using CARLA’s discrete weather presets (e.g., `ClearNoon`, `HardRainSunset`, `WetCloudy`). This analysis demonstrates that performance degradation often occurs at specific, compounding interaction thresholds (like `u_wetness > 0.6` combined with `u_sun_alt < 0.2`) that can fall between the cracks of these discrete preset buckets. 
 
 I recommend utilizing continuous domain randomization during dataset collection and simulation training. By sampling weather and environmental parameters from continuous uniform distributions rather than presets, networks can learn more robust, smooth feature representations across the entire environmental hyperspace.
 
@@ -333,148 +333,4 @@ If you wish to replicate this experiment locally from scratch—using the exact 
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
 6. You can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
 8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
-
-
-
-#### 1\
-
-#### 1
-#### 1
-#### 1
-#### 1
-#### 1
-#### 1
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
-
-#### 1\
 
