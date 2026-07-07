@@ -16,7 +16,7 @@ For this analysis to be valid, we rely on several foundational assumptions:
 
 Rather than relying purely on  combined failure rates, this project is trying to bridge the gap between the statistical analysis and internal neural network diagnostics. By testing the CILv2 model against a 70-run Latin Hypercube Sample of environmental variables, I isolated the  mathematical thresholds where spatial tracking collapses or a lane evasion occurs , and engineered the tools to help see *why* the network failed.
 
-### 1. Engineered Custom XAI Diagnostics (LRP)
+### 1. Engineered Custom XAI Diagnostics 
 To capture the dynamic division of labour between the four attention heads, I extracted the frozen Output Projection matrix and intercepted the gradients flowing back from the FC layer after the transformer, then un-projected the attention gradients. I successfully tracked the real-time cognitive division of labor across the Transformer's attention heads. I choose that method to avoid the hardware-level memory optimizations in PyTorch’s autograd. 
 
 ![XAI Diagnostic Panel - Pre-Evasion Frame](analysis/master_results/run_021_Town02_rt0_LHS_020/frame_183060_master.jpg)
