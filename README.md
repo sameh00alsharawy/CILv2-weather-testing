@@ -230,7 +230,7 @@ To overcome this, I engineered a custom pipeline that manually extracts and un-p
 
 ### Methodology
 * **Gradient Interception:** bypassed PyTorch's autograd memory cleanup by retaining the gradient on the 512-dimensional output tensor (Y).
-* **Manual LRP Un-projection:** extracted the frozen Output Projection matrix ($W^O$) and performed a manual reverse-projection ($\nabla X = \nabla Y \cdot W^O$).
+* **Manual Attention Attribution:** extracted the frozen Output Projection matrix ($W^O$) and performed a manual reverse-projection ($\nabla X = \nabla Y \cdot W^O$).
 * **Dynamic Attribution:** By slicing the un-projected gradient back into its 4 independent 128-dimensional subspaces, we calculated the exact, dynamic percentage of steering authority yielded by each Attention Head per frame.
 
 ### Key Findings
@@ -288,7 +288,7 @@ Increasing the number of simulation runs would unlock several analytical capabil
 The ultimate risk lies in delayed reaction times to dynamic hazards. Future testing should evaluate the model against dynamic edge cases—such as a pedestrian crossing the road or a lead vehicle braking hard—*during* an isolated environmental trigger (like the "wet mirror" or low-light scenario). 
 
 ### 3. Benchmarking State-of-the-Art (SoTA) Architectures
-This project tested a classic CNN/Transformer baseline to establish the methodology. A possible next step is to apply this exact targeted DoE and custom LRP forensic pipeline to modern, State-of-the-Art end-to-end driving models. This will test whether modern architectural innovations—such as advanced multi-modal sensor fusion or pure Vision-Transformer backbones—actually eliminate the compounding weather vulnerabilities.
+This project tested a classic CNN/Transformer baseline to establish the methodology. A possible next step is to apply this exact targeted DoE and custom XAI forensic pipeline to modern, State-of-the-Art end-to-end driving models. This will test whether modern architectural innovations—such as advanced multi-modal sensor fusion or pure Vision-Transformer backbones—actually eliminate the compounding weather vulnerabilities.
 
 
 ## Reproducibility Guide: How to Run It
@@ -328,7 +328,7 @@ If you wish to replicate this experiment locally from scratch—using the exact 
 ### Phase 4: XAI Outlier Diagnostics
 1. Use the IQR method to flag the specific runs that resulted in critical spatial failures: 
    `python extract_outliers.py`
-2. Re-run those specific failure frames back through the network with the custom LRP PyTorch hooks activated. You must pass the specific run name. For example, to process all evasion windows for run 7, execute:
+2. Re-run those specific failure frames back through the network with the custom backward PyTorch hooks activated. You must pass the specific run name. For example, to process all evasion windows for run 7, execute:
     
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006`
     
@@ -338,165 +338,4 @@ If you wish to replicate this experiment locally from scratch—using the exact 
    `python extract_batch_gradcam.py --run_name run_007_Town02_rt0_LHS_006 --start_frame 183000 --end_frame 183050`
 6. You can run `python batch_process_xai.py ` to automatically read the outliers table and generate the diagnostics panels for each run. 
 8. **Output:** This saves the final 4x6 Master Diagnostic panels directly to your local machine for visual inspection.
-
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
-
-## mm
 
