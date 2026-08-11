@@ -1,4 +1,9 @@
 # CILv2-weather-testing
+
+# TL;DR
+An extension of the CILv2 End-to-End Autonomous Driving model. This pipeline utilizes Latin Hypercube Sampling to stress-test the model against compounding weather hazards in CARLA, and implements a custom PyTorch Explainable AI (XAI) diagnostic tool using Gradient-Based Attention Attribution to audit Transformer attention during failure events.
+
+
 # Motivation
 This repo was developed as a portfolio project to explore some subjects I am interested in, mainly Explainable AI (XAI), Vision-Action models, and the validation of autonomous vehicles. 
 
